@@ -352,11 +352,7 @@
       pointer-events: none;
     }
     .cover-icon { font-size: 3rem; margin-bottom: 14px; }
-    .cover-title {
-      font-family: 'Dancing Script', cursive;
-      font-size: 2.5rem; color: var(--gold);
-      text-shadow: 0 2px 8px rgba(0,0,0,.35);
-    }
+    .cover-title { font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: var(--gold); text-shadow: 0 2px 8px rgba(0,0,0,.35); }
     .cover-sub { font-style: italic; color: #ffc9de; font-size: .95rem; margin-top: 8px; }
 
     .deco-face { gap: 14px; }
@@ -481,14 +477,56 @@
       50%       { transform: rotate(8deg) scale(1.08); }
     }
 
-    /* ═══════════ RESPONSIVE ═══════════ */
-    @media (max-width: 700px) {
-      .book-stage { transform: scale(.66); margin: -60px 0; }
+    /* ═══════════ RESPONSIVE — mobile only, PC untouched ═══════════ */
+    @media (max-width: 600px) {
+      /* ── book scene: scrollable so nothing clips ── */
+      #bookScene { justify-content: flex-start; overflow-y: auto; padding: 10px 0 80px; }
+
+      /* ── book: size down, remove the translateX that bleeds off left edge ── */
+      .book {
+        width: min(260px, 84vw);
+        height: min(330px, 44dvh);
+        transform: none !important;      /* no translateX on mobile */
+      }
+      .book.open { transform: none !important; }
+
+      /* ── flip around center so rotated page stays inside the book box ── */
+      .sheet { transform-origin: center center; }
+
+      /* clip any stray 3d overflow */
+      .book-stage { overflow: hidden; }
+
+      /* ── photo slot: proportional to new book size ── */
+      .photo-slot {
+        width: calc(min(260px, 84vw) * .742);
+        height: min(200px, 35dvh);
+      }
+
+      /* ── text/controls: scale down slightly ── */
+      .caption     { font-size: 1rem; max-width: 88%; }
+      .deco-quote  { font-size: .85rem; max-width: 88%; }
+      .cover-title { font-size: 2rem; }
+      .cover-sub   { font-size: .82rem; }
+      .cover-icon  { font-size: 2.4rem; margin-bottom: 10px; }
+      .deco-emoji  { font-size: 1.9rem; }
+      .final-text  { font-size: 1.25rem; }
+      .final-small { font-size: .82rem; }
+      .book-hint   { font-size: .78rem; margin-bottom: 2px; }
+      .book-controls { margin-top: 6px; gap: 12px; }
+      .arrow-btn   { width: 38px; height: 38px; font-size: 1rem; }
     }
+
     @media (max-width: 430px) {
+      /* bouquet: scale down on small phones */
       .bouquet-box { transform: translateY(108%) scale(.82); transform-origin: bottom center; }
       @keyframes bouquetUp { to { transform: translateY(0) scale(.82); } }
-      .book-stage { transform: scale(.58); margin: -76px 0; }
+    }
+
+    @media (max-height: 580px) {
+      /* very short screens (landscape phone) */
+      .book { height: 38dvh; }
+      .photo-slot { height: 30dvh; }
+      #bookScene { padding-top: 4px; }
     }
   </style>
 </head>
