@@ -477,56 +477,139 @@
       50%       { transform: rotate(8deg) scale(1.08); }
     }
 
-    /* ═══════════ RESPONSIVE — mobile only, PC untouched ═══════════ */
-    @media (max-width: 600px) {
-      /* ── book scene: scrollable so nothing clips ── */
-      #bookScene { justify-content: flex-start; overflow-y: auto; padding: 10px 0 80px; }
-
-      /* ── book: size down, remove the translateX that bleeds off left edge ── */
-      .book {
-        width: min(260px, 84vw);
-        height: min(330px, 44dvh);
-        transform: none !important;      /* no translateX on mobile */
-      }
-      .book.open { transform: none !important; }
-
-      /* ── flip around center so rotated page stays inside the book box ── */
-      .sheet { transform-origin: center center; }
-
-      /* clip any stray 3d overflow */
-      .book-stage { overflow: hidden; }
-
-      /* ── photo slot: proportional to new book size ── */
-      .photo-slot {
-        width: calc(min(260px, 84vw) * .742);
-        height: min(200px, 35dvh);
-      }
-
-      /* ── text/controls: scale down slightly ── */
-      .caption     { font-size: 1rem; max-width: 88%; }
-      .deco-quote  { font-size: .85rem; max-width: 88%; }
-      .cover-title { font-size: 2rem; }
-      .cover-sub   { font-size: .82rem; }
-      .cover-icon  { font-size: 2.4rem; margin-bottom: 10px; }
-      .deco-emoji  { font-size: 1.9rem; }
-      .final-text  { font-size: 1.25rem; }
-      .final-small { font-size: .82rem; }
-      .book-hint   { font-size: .78rem; margin-bottom: 2px; }
-      .book-controls { margin-top: 6px; gap: 12px; }
-      .arrow-btn   { width: 38px; height: 38px; font-size: 1rem; }
+    /* ═══════════ MOBILE BOOK — two-page spread ═══════════ */
+    .mobile-book {
+      display: none;                          /* hidden on PC */
+      width: 92vw; max-width: 400px;
+      height: min(310px, 50dvh);
+      position: relative; z-index: 2;
+      border-radius: 14px; overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 22px 64px rgba(136,14,79,.38), 0 4px 16px rgba(136,14,79,.2);
     }
 
+    .spread-page {
+      display: flex; width: 100%; height: 100%;
+      position: absolute; inset: 0;
+      animation: none;
+    }
+    .spread-page.flip-anim { animation: spreadFlip .38s ease; }
+    @keyframes spreadFlip {
+      0%   { opacity: 1;  transform: scale(1); }
+      45%  { opacity: .2; transform: scale(.95) rotateY(6deg); }
+      100% { opacity: 1;  transform: scale(1)  rotateY(0deg); }
+    }
+
+    /* ── left panel (quote / deco) ── */
+    .spread-left {
+      width: 50%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 16px 12px 12px;
+      background: linear-gradient(148deg, #c2185b 0%, #880e4f 100%);
+      border-radius: 14px 0 0 14px;
+      position: relative; overflow: hidden;
+      gap: 10px;
+    }
+    .spread-left::before {
+      content: '';
+      position: absolute; inset: 8px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px; pointer-events: none;
+    }
+    .sl-emoji  { font-size: clamp(1.6rem, 6vw, 2rem); line-height: 1; }
+    .sl-text   {
+      color: rgba(255,255,255,.93); font-style: italic;
+      font-size: clamp(.72rem, 2.6vw, .88rem);
+      text-align: center; line-height: 1.85;
+    }
+    .sl-sub    { color: rgba(255,192,222,.85); font-style: italic; font-size: .72rem; text-align: center; margin-top: -4px; }
+
+    /* ── spine ── */
+    .spread-spine {
+      width: 7px; height: 100%; flex-shrink: 0; z-index: 5;
+      background: linear-gradient(to right,
+        rgba(0,0,0,.28) 0%, rgba(0,0,0,.06) 40%,
+        rgba(255,255,255,.14) 60%, rgba(0,0,0,.12) 100%);
+      position: relative;
+    }
+    .spread-spine::after {
+      content: '';
+      position: absolute; top: 0; bottom: 0; left: 50%; width: 1px;
+      background: rgba(255,255,255,.14);
+    }
+
+    /* ── right panel (photo / content) ── */
+    .spread-right {
+      flex: 1; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 16px 8px 8px; gap: 8px;
+      background: #fffaf6;
+      background-image: radial-gradient(rgba(233,30,140,.05) 1px, transparent 1px);
+      background-size: 14px 14px;
+      border-radius: 0 14px 14px 0;
+      overflow: hidden; position: relative;
+    }
+
+    .sr-photo {
+      position: relative;
+      width: calc(46vw - 24px); max-width: 155px;
+      height: min(158px, 28dvh);
+      background: #fff; padding: 5px 5px 9px;
+      box-shadow: 0 3px 12px rgba(136,14,79,.2);
+      border-radius: 3px; cursor: pointer;
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+    .sr-photo:hover { transform: scale(1.03) rotate(0deg) !important; }
+    .sr-photo.alt { transform: rotate(1.5deg); }
+    .sr-photo:not(.alt) { transform: rotate(-1.5deg); }
+    .sr-photo::before {
+      content: '';
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 13px;
+      background: rgba(244,143,177,.65);
+    }
+    .sr-photo img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 1px; }
+    .sr-photo img.loaded { display: block; }
+    .sr-photo .ph2 {
+      position: absolute; inset: 5px 5px 9px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(150deg, var(--p1), var(--p2));
+      color: var(--p5); font-size: .68rem; font-style: italic;
+      text-align: center; border-radius: 1px; gap: 3px; line-height: 1.5;
+    }
+    .sr-photo img.loaded + .ph2 { display: none; }
+
+    .sr-caption {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(.82rem, 3vw, .98rem); color: var(--p6);
+      text-align: center; padding: 1px 6px;
+      outline: none; border-radius: 4px; cursor: text; max-width: 90%;
+    }
+    .sr-caption:focus { background: rgba(244,143,177,.16); }
+    .sr-pagenum { font-style: italic; color: var(--p3); font-size: .6rem; position: absolute; bottom: 6px; }
+
+    .sr-cover-title { font-family: 'Dancing Script', cursive; font-size: clamp(1.1rem, 4vw, 1.4rem); color: var(--p6); text-align: center; margin-top: 4px; }
+    .sr-cover-sub   { font-style: italic; color: var(--p5); font-size: .75rem; text-align: center; margin-top: 2px; }
+
+    /* ═══════════ RESPONSIVE ═══════════ */
+    @media (max-width: 600px) {
+      .book-stage  { display: none; }
+      .book-hint   { display: none; }
+      .mobile-book { display: block; }
+      #bookScene   { justify-content: center; gap: 14px; padding: 10px 0 80px; overflow-y: auto; }
+    }
     @media (max-width: 430px) {
-      /* bouquet: scale down on small phones */
       .bouquet-box { transform: translateY(108%) scale(.82); transform-origin: bottom center; }
       @keyframes bouquetUp { to { transform: translateY(0) scale(.82); } }
+      .mobile-book { height: min(280px, 47dvh); }
+      .sr-photo    { height: min(136px, 25dvh); }
     }
-
     @media (max-height: 580px) {
-      /* very short screens (landscape phone) */
-      .book { height: 38dvh; }
-      .photo-slot { height: 30dvh; }
-      #bookScene { padding-top: 4px; }
+      .mobile-book { height: 38dvh; }
+      .sr-photo    { height: 27dvh; }
+      #bookScene   { padding-top: 4px; }
     }
   </style>
 </head>
@@ -564,6 +647,14 @@
     <div class="book-hint">tap the page to flip it, my love</div>
     <div class="book-stage">
       <div class="book" id="book"></div>
+    </div>
+    <!-- mobile two-page spread (hidden on PC) -->
+    <div class="mobile-book" id="mobileBook">
+      <div class="spread-page" id="spreadPage">
+        <div class="spread-left"  id="spreadLeft"></div>
+        <div class="spread-spine"></div>
+        <div class="spread-right" id="spreadRight"></div>
+      </div>
     </div>
     <div class="book-controls">
       <button class="arrow-btn" id="prevBtn">❮</button>
@@ -1197,6 +1288,97 @@
     updateBook();
   }
 
+  /* ── mobile spread renderer ── */
+  const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
+
+  function getSpreadContent(f) {
+    // LEFT  = back face of sheets[f-1]
+    let left;
+    if      (f === 0)             left = { t: 'decor' };
+    else if (f === 1)             left = { t: 'intro' };
+    else if (f <= NUM_PHOTOS)     left = { t: 'deco', idx: (f - 2) % DECO.length };
+    else if (f === NUM_PHOTOS+1)  left = { t: 'deco', idx: (NUM_PHOTOS - 1) % DECO.length };
+    else                          left = { t: 'backcover' };
+
+    // RIGHT = front face of sheets[f]
+    let right;
+    if      (f === 0)             right = { t: 'cover' };
+    else if (f <= NUM_PHOTOS)     right = { t: 'photo', idx: f - 1 };
+    else if (f === NUM_PHOTOS+1)  right = { t: 'final' };
+    else                          right = { t: 'closed' };
+
+    return { left, right };
+  }
+
+  function renderMobileSpread() {
+    if (!isMobile()) return;
+    const { left, right } = getSpreadContent(flipped);
+    const SL = $('spreadLeft'), SR = $('spreadRight');
+
+    // LEFT panel
+    SL.innerHTML = '';
+    if (left.t === 'decor') {
+      SL.innerHTML = `<span class="sl-emoji">💐</span><span class="sl-text" style="color:rgba(255,255,255,.65);font-size:.75rem;letter-spacing:.05em;">Our Little Album</span>`;
+    } else if (left.t === 'intro') {
+      SL.innerHTML = `<span class="sl-emoji">💌</span><span class="sl-text">This little book holds<br>pieces of us.<br><br>Flip gently —<br>every page is yours. 💗</span>`;
+    } else if (left.t === 'deco') {
+      const [em, txt] = DECO[left.idx];
+      SL.innerHTML = `<span class="sl-emoji">${em}</span><span class="sl-text">${txt.replace(/\n/g,'<br>')}</span>`;
+    } else if (left.t === 'backcover') {
+      SL.innerHTML = `<span class="sl-emoji">💗</span><span class="sl-text" style="font-family:'Dancing Script',cursive;font-size:1.3rem;color:#ffe0b2;">The End?</span><span class="sl-sub">no — we're just getting started</span>`;
+    }
+
+    // RIGHT panel
+    SR.innerHTML = '';
+    SR.style.justifyContent = 'flex-start';
+    if (right.t === 'cover') {
+      SR.style.justifyContent = 'center';
+      SR.innerHTML = `<div style="font-size:2rem;margin-bottom:6px;">💐</div><div class="sr-cover-title">Random Pictures haha</div><div class="sr-cover-sub">happy birthday, bal</div>`;
+    } else if (right.t === 'photo') {
+      const pi = right.idx;
+      const saved = lsGet('bday_photo_' + pi);
+      const capTxt = lsGet('bday_cap_' + pi) || PHOTOS[pi].caption;
+      // photo polaroid
+      const slot = document.createElement('div');
+      slot.className = 'sr-photo' + (pi % 2 ? ' alt' : '');
+      slot.dataset.i = pi;
+      const img = document.createElement('img');
+      img.alt = 'memory';
+      img.src = saved || PHOTOS[pi].src;
+      img.onload = () => img.classList.add('loaded');
+      img.onerror = () => img.classList.remove('loaded');
+      const ph2 = document.createElement('div');
+      ph2.className = 'ph2';
+      ph2.innerHTML = `📷<br><small>tap to add</small>`;
+      slot.appendChild(img); slot.appendChild(ph2);
+      slot.addEventListener('click', e => { e.stopPropagation(); currentSlot = pi; $('fileInput').click(); });
+      SR.appendChild(slot);
+      // caption
+      const cap = document.createElement('div');
+      cap.className = 'sr-caption'; cap.contentEditable = 'true'; cap.spellcheck = false;
+      cap.textContent = capTxt;
+      cap.addEventListener('input', () => lsSet('bday_cap_' + pi, cap.textContent));
+      cap.addEventListener('click', e => e.stopPropagation());
+      SR.appendChild(cap);
+      // page number
+      const pn = document.createElement('div');
+      pn.className = 'sr-pagenum'; pn.textContent = `~ ${pi + 1} ~`;
+      SR.appendChild(pn);
+    } else if (right.t === 'final') {
+      SR.style.justifyContent = 'center';
+      SR.innerHTML = `<div style="font-size:1.9rem;margin-bottom:6px;">🎂</div><div class="sr-cover-title" style="font-size:1.1rem;line-height:1.6;">Happiest Birthday,<br>my one and only bal!</div><div class="sr-cover-sub" style="margin-top:8px;line-height:1.8;">Thank you for existing,<br>for being you.<br>I love you — always. 💖</div>`;
+    } else if (right.t === 'closed') {
+      SR.style.justifyContent = 'center';
+      SR.innerHTML = `<div style="font-size:1.6rem;opacity:.35;">📖</div>`;
+    }
+
+    // page-turn flash
+    const pg = $('spreadPage');
+    pg.classList.remove('flip-anim');
+    void pg.offsetWidth;
+    pg.classList.add('flip-anim');
+  }
+
   function updateBook() {
     sheets.forEach((s, i) => {
       s.style.zIndex = s.classList.contains('flipped') ? i + 1 : TOTAL_SHEETS - i + 10;
@@ -1205,6 +1387,7 @@
     $('prevBtn').disabled = flipped === 0;
     $('nextBtn').disabled = flipped === TOTAL_SHEETS;
     document.querySelectorAll('#dots .dot').forEach((d, i) => d.classList.toggle('on', i === flipped));
+    renderMobileSpread();
   }
 
   function goNext() {
@@ -1227,12 +1410,12 @@
     s.addEventListener('transitionend', updateBook, { once: true });
     updateBook2();
   }
-  // partial update during animation (keep flipping sheet on top)
   function updateBook2() {
     $('book').classList.toggle('open', flipped > 0 && flipped < TOTAL_SHEETS);
     $('prevBtn').disabled = flipped === 0;
     $('nextBtn').disabled = flipped === TOTAL_SHEETS;
     document.querySelectorAll('#dots .dot').forEach((d, i) => d.classList.toggle('on', i === flipped));
+    renderMobileSpread();
   }
 
   $('nextBtn').addEventListener('click', goNext);
@@ -1260,8 +1443,9 @@
         let data;
         try { data = cv.toDataURL('image/jpeg', .85); } catch(err) { data = reader.result; }
         const slotImg = document.querySelector(`.photo-slot[data-i="${currentSlot}"] img`);
-        slotImg.src = data;
+        if (slotImg) slotImg.src = data;
         lsSet('bday_photo_' + currentSlot, data);
+        renderMobileSpread(); // refresh mobile spread photo
       };
       img.src = reader.result;
     };
