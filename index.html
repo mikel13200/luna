@@ -492,11 +492,11 @@
       position: absolute; inset: 0;
       animation: none;
     }
-    .spread-page.flip-anim { animation: spreadFlip .38s ease; }
+    .spread-page.flip-anim { animation: spreadFlip .42s ease; }
     @keyframes spreadFlip {
-      0%   { opacity: 1;  transform: scale(1); }
-      45%  { opacity: .2; transform: scale(.95) rotateY(6deg); }
-      100% { opacity: 1;  transform: scale(1)  rotateY(0deg); }
+      0%   { opacity: 1; transform: scale(1); }
+      40%  { opacity: 0; transform: scale(.96); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
     /* ── left panel (quote / deco) ── */
@@ -543,18 +543,21 @@
       flex: 1; height: 100%;
       display: flex; flex-direction: column;
       align-items: center; justify-content: flex-start;
-      padding: 16px 8px 8px; gap: 8px;
+      padding: 22px 6px 8px; gap: 8px;
       background: #fffaf6;
       background-image: radial-gradient(rgba(233,30,140,.05) 1px, transparent 1px);
       background-size: 14px 14px;
       border-radius: 0 14px 14px 0;
-      overflow: hidden; position: relative;
+      overflow: visible;          /* let polaroid tilt & washi tape breathe */
+      position: relative;
+      /* clip at rounded corner via clip-path so we don't need overflow:hidden */
+      clip-path: inset(0 0 0 0 round 0 14px 14px 0);
     }
 
     .sr-photo {
       position: relative;
-      width: calc(46vw - 24px); max-width: 155px;
-      height: min(158px, 28dvh);
+      width: calc(46vw - 28px); max-width: 148px;
+      height: min(152px, 27dvh);
       background: #fff; padding: 5px 5px 9px;
       box-shadow: 0 3px 12px rgba(136,14,79,.2);
       border-radius: 3px; cursor: pointer;
@@ -562,13 +565,13 @@
       flex-shrink: 0;
     }
     .sr-photo:hover { transform: scale(1.03) rotate(0deg) !important; }
-    .sr-photo.alt { transform: rotate(1.5deg); }
-    .sr-photo:not(.alt) { transform: rotate(-1.5deg); }
+    .sr-photo.alt { transform: rotate(.8deg); }
+    .sr-photo:not(.alt) { transform: rotate(-.8deg); }
     .sr-photo::before {
       content: '';
-      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-      width: 36px; height: 13px;
-      background: rgba(244,143,177,.65);
+      position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+      width: 34px; height: 12px;
+      background: rgba(244,143,177,.7);
     }
     .sr-photo img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 1px; }
     .sr-photo img.loaded { display: block; }
